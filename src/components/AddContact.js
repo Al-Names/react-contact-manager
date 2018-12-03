@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { Consumer } from "../context";
-import uuid from "uuid";
+
+import axios from "axios";
 
 import TextInputGroup from "./layout/TextInputGroup";
 
@@ -17,11 +18,12 @@ class AddContact extends Component {
     this.setState({ showForm: !this.state.showForm });
   };
 
-  onSubmit = (dispatch, e) => {
+  onSubmit = async (dispatch, e) => {
     e.preventDefault();
 
     const { name, email, phone } = this.state;
 
+    // Check For Errors
     if (name === "") {
       this.setState({ errors: { name: "Name is required" } });
       return;
@@ -38,15 +40,19 @@ class AddContact extends Component {
     }
 
     const newContact = {
-      id: uuid(),
       name,
       email,
       phone
     };
 
-    console.log(this.state);
+    const res = await axios.post(
+      "https://jsonplaceholder.typicode.com/users",
+      newContact
+    );
 
-    dispatch({ type: "ADD_CONTACT", payload: newContact });
+    dispatch({ type: "ADD_CONTACT", payload: res.data });
+
+    console.log(this.state);
 
     this.setState({
       name: "",
@@ -89,7 +95,7 @@ class AddContact extends Component {
                       label="Email"
                       name="email"
                       type="email"
-                      placeholder="Enter email"
+                      placeholder="Enter Email"
                       value={email}
                       onChange={this.onChange}
                       error={errors.email}
